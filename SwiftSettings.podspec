@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
 TODO: Add long description of the pod here.
                        DESC
 
-  s.homepage         = 'https://github.com/<GITHUB_USERNAME>/SwiftSettings'
+  s.homepage         = 'https://bitbucket.org/mmulyar/swiftsettings'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'Mikhail Mulyar' => 'mulyarm@gmail.com' }
@@ -35,6 +35,8 @@ TODO: Add long description of the pod here.
   # s.resource_bundles = {
   #   'SwiftSettings' => ['SwiftSettings/Assets/*.png']
   # }
+
+  s.pod_target_xcconfig = { 'SWIFT_VERSION' => '4' }
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
