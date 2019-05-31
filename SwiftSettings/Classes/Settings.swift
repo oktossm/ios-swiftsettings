@@ -10,7 +10,18 @@ open class Settings: NSObject, Reflectable {
     static let keysPrefixKey = "kSettingsPrefixKey"
     static let codableKeysPrefixKey = "kSettingsCodablePrefixKey"
 
-    public override init() {
+    let userDefaults: UserDefaults
+    let domainName: String
+    
+    public init(suiteName: String? = nil) {
+        if let name = suiteName, let userdefaults = UserDefaults(suiteName: name) {
+            self.userDefaults = userdefaults
+            self.domainName = name
+        } else {
+            self.userDefaults = UserDefaults.standard
+            self.domainName = Bundle.main.bundleIdentifier!
+        }
+        
         super.init()
 
         for property in self.properties() {
@@ -27,31 +38,31 @@ open class Settings: NSObject, Reflectable {
 
     open var keyPrefix: String? {
         get {
-            if let key = UserDefaults.standard.string(forKey: Settings.keysPrefixKey) {
+            if let key = self.userDefaults.string(forKey: Settings.keysPrefixKey) {
                 return key
             }
             let key = "\(UUID().uuidString)."
-            UserDefaults.standard.set(key, forKey: Settings.keysPrefixKey)
-            UserDefaults.standard.synchronize()
+            self.userDefaults.set(key, forKey: Settings.keysPrefixKey)
+            self.userDefaults.synchronize()
             return key
         }
         set {
-            UserDefaults.standard.set(newValue, forKey: Settings.keysPrefixKey)
+            self.userDefaults.set(newValue, forKey: Settings.keysPrefixKey)
         }
     }
 
     open var codableKeyPrefix: String? {
         get {
-            if let key = UserDefaults.standard.string(forKey: Settings.codableKeysPrefixKey) {
+            if let key = self.userDefaults.string(forKey: Settings.codableKeysPrefixKey) {
                 return key
             }
             let key = "\(UUID().uuidString)."
-            UserDefaults.standard.set(key, forKey: Settings.codableKeysPrefixKey)
-            UserDefaults.standard.synchronize()
+            self.userDefaults.set(key, forKey: Settings.codableKeysPrefixKey)
+            self.userDefaults.synchronize()
             return key
         }
         set {
-            UserDefaults.standard.set(newValue, forKey: Settings.codableKeysPrefixKey)
+            self.userDefaults.set(newValue, forKey: Settings.codableKeysPrefixKey)
         }
     }
 
@@ -62,17 +73,17 @@ open class Settings: NSObject, Reflectable {
     }
 
     open func data(for key: String) -> Data? {
-        return UserDefaults.standard.object(forKey: key) as? Data
+        return self.userDefaults.object(forKey: key) as? Data
     }
 
     open func setData(_ data: Data?, for key: String) {
         if let d = data {
-            UserDefaults.standard.set(d, forKey: key)
+            self.userDefaults.set(d, forKey: key)
         } else {
-            UserDefaults.standard.removeObject(forKey: key)
+            self.userDefaults.removeObject(forKey: key)
         }
 
-        UserDefaults.standard.synchronize()
+        self.userDefaults.synchronize()
     }
 
     open subscript(key: String) -> Any? {
@@ -91,7 +102,7 @@ open class Settings: NSObject, Reflectable {
     }
 
     open func resetSettings() {
-        UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
+        self.userDefaults.removePersistentDomain(forName: self.domainName)
     }
 
     final override public func observeValue(forKeyPath keyPath: String?,
