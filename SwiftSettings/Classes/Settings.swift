@@ -11,12 +11,15 @@ open class Settings: NSObject, Reflectable {
     static let codableKeysPrefixKey = "kSettingsCodablePrefixKey"
 
     let userDefaults: UserDefaults
+    let domainName: String
     
     public init(suiteName: String? = nil) {
         if let name = suiteName, let userdefaults = UserDefaults(suiteName: name) {
             self.userDefaults = userdefaults
+            self.domainName = name
         } else {
             self.userDefaults = UserDefaults.standard
+            self.domainName = Bundle.main.bundleIdentifier!
         }
         
         super.init()
@@ -99,7 +102,7 @@ open class Settings: NSObject, Reflectable {
     }
 
     open func resetSettings() {
-        self.userDefaults.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
+        self.userDefaults.removePersistentDomain(forName: self.domainName)
     }
 
     final override public func observeValue(forKeyPath keyPath: String?,
