@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'SwiftSettings'
-  s.version          = '0.1.1'
+  s.version          = '0.1.2'
   s.summary          = 'A short description of SwiftSettings.'
 
 # This description is used to generate tags and improve search results.
@@ -31,7 +31,7 @@ TODO: Add long description of the pod here.
   s.ios.deployment_target = '8.0'
 
   s.source_files = 'SwiftSettings/Classes/**/*'
-  
+
   # s.resource_bundles = {
   #   'SwiftSettings' => ['SwiftSettings/Assets/*.png']
   # }
