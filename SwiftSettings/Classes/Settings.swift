@@ -48,7 +48,7 @@ open class Settings: NSObject, Reflectable {
             if let key = self.userDefaults.string(forKey: Settings.keysPrefixKey) {
                 return key
             }
-            let key = "\(UUID().uuidString)."
+            let key = "\(UUID().uuidString)_"
             self.userDefaults.set(key, forKey: Settings.keysPrefixKey)
             self.userDefaults.synchronize()
             return key
@@ -63,7 +63,7 @@ open class Settings: NSObject, Reflectable {
             if let key = self.userDefaults.string(forKey: Settings.codableKeysPrefixKey) {
                 return key
             }
-            let key = "\(UUID().uuidString)."
+            let key = "\(UUID().uuidString)_"
             self.userDefaults.set(key, forKey: Settings.codableKeysPrefixKey)
             self.userDefaults.synchronize()
             return key
@@ -126,7 +126,7 @@ open class Settings: NSObject, Reflectable {
     }
 
     fileprivate func keyPath(from settingsKey: String) -> String? {
-        let keyPath = settingsKey.components(separatedBy: ".").last
+        let keyPath = settingsKey.components(separatedBy: "_").last
         return keyPath
     }
 
