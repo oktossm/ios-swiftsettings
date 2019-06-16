@@ -12,6 +12,8 @@ open class Settings: NSObject, Reflectable {
 
     let userDefaults: UserDefaults
     let domainName: String
+    private static var myContext = 0
+
     
     public init(suiteName: String? = nil) {
         if let name = suiteName, let userdefaults = UserDefaults(suiteName: name) {
@@ -32,7 +34,12 @@ open class Settings: NSObject, Reflectable {
             self.addObserver(self,
                              forKeyPath: property,
                              options: .new,
-                             context: nil)
+                             context: &Settings.myContext)
+
+            self.userDefaults.addObserver(self,
+                                          forKeyPath: property,
+                                          options: .new,
+                                          context: nil)
         }
     }
 
@@ -109,9 +116,21 @@ open class Settings: NSObject, Reflectable {
                                             of object: Any?,
                                             change: [NSKeyValueChangeKey: Any]?,
                                             context: UnsafeMutableRawPointer?) {
-        if let path = keyPath {
+        guard let path = keyPath else { return }
+
+        if context == &Settings.myContext {
             self[settingsKeyForPath(path)] = self.value(forKeyPath: path) as AnyObject?
+        } else {
+            self.setValue(self[settingsKeyForPath(path)], forKeyPath: path)
         }
+    }
+
+    fileprivate func dataFor(object: AnyObject?) -> Data? {
+        guard let value = object else {
+            return nil
+        }
+
+        return NSKeyedArchiver.archivedData(withRootObject: value)
     }
 
     fileprivate func settingsKeyForPath(_ path: String) -> String {
