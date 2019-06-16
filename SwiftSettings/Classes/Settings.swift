@@ -37,7 +37,7 @@ open class Settings: NSObject, Reflectable {
                              context: &Settings.myContext)
 
             self.userDefaults.addObserver(self,
-                                          forKeyPath: property,
+                                          forKeyPath: settingsKeyForPath(property),
                                           options: .new,
                                           context: nil)
         }
@@ -120,17 +120,14 @@ open class Settings: NSObject, Reflectable {
 
         if context == &Settings.myContext {
             self[settingsKeyForPath(path)] = self.value(forKeyPath: path) as AnyObject?
-        } else {
-            self.setValue(self[settingsKeyForPath(path)], forKeyPath: path)
+        } else if let keyPath = self.keyPath(from: path) {
+            self.setValue(self[settingsKeyForPath(path)], forKeyPath: keyPath)
         }
     }
 
-    fileprivate func dataFor(object: AnyObject?) -> Data? {
-        guard let value = object else {
-            return nil
-        }
-
-        return NSKeyedArchiver.archivedData(withRootObject: value)
+    fileprivate func keyPath(from settingsKey: String) -> String? {
+        let keyPath = settingsKey.components(separatedBy: ".").last
+        return keyPath
     }
 
     fileprivate func settingsKeyForPath(_ path: String) -> String {
