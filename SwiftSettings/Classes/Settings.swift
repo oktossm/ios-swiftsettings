@@ -12,7 +12,7 @@ open class Settings: NSObject, Reflectable {
 
     let userDefaults: UserDefaults
     let domainName: String
-    private static var myContext = 0
+    private static var currentContext = 0
 
     
     public init(suiteName: String? = nil) {
@@ -34,7 +34,7 @@ open class Settings: NSObject, Reflectable {
             self.addObserver(self,
                              forKeyPath: property,
                              options: .new,
-                             context: &Settings.myContext)
+                             context: &Settings.currentContext)
 
             self.userDefaults.addObserver(self,
                                           forKeyPath: settingsKeyForPath(property),
@@ -118,7 +118,7 @@ open class Settings: NSObject, Reflectable {
                                             context: UnsafeMutableRawPointer?) {
         guard let path = keyPath else { return }
 
-        if context == &Settings.myContext {
+        if context == &Settings.currentContext {
             self[settingsKeyForPath(path)] = self.value(forKeyPath: path) as AnyObject?
         } else if let keyPath = self.keyPath(from: path) {
             self.setValue(self[settingsKeyForPath(path)], forKeyPath: keyPath)
