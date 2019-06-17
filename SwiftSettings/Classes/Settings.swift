@@ -12,6 +12,8 @@ open class Settings: NSObject, Reflectable {
 
     let userDefaults: UserDefaults
     let domainName: String
+    private static var currentContext = 0
+
     
     public init(suiteName: String? = nil) {
         if let name = suiteName, let userdefaults = UserDefaults(suiteName: name) {
@@ -32,7 +34,12 @@ open class Settings: NSObject, Reflectable {
             self.addObserver(self,
                              forKeyPath: property,
                              options: .new,
-                             context: nil)
+                             context: &Settings.currentContext)
+
+            self.userDefaults.addObserver(self,
+                                          forKeyPath: settingsKeyForPath(property),
+                                          options: .new,
+                                          context: nil)
         }
     }
 
@@ -41,9 +48,8 @@ open class Settings: NSObject, Reflectable {
             if let key = self.userDefaults.string(forKey: Settings.keysPrefixKey) {
                 return key
             }
-            let key = "\(UUID().uuidString)."
+            let key = "\(UUID().uuidString)_"
             self.userDefaults.set(key, forKey: Settings.keysPrefixKey)
-            self.userDefaults.synchronize()
             return key
         }
         set {
@@ -56,9 +62,8 @@ open class Settings: NSObject, Reflectable {
             if let key = self.userDefaults.string(forKey: Settings.codableKeysPrefixKey) {
                 return key
             }
-            let key = "\(UUID().uuidString)."
+            let key = "\(UUID().uuidString)_"
             self.userDefaults.set(key, forKey: Settings.codableKeysPrefixKey)
-            self.userDefaults.synchronize()
             return key
         }
         set {
@@ -82,8 +87,6 @@ open class Settings: NSObject, Reflectable {
         } else {
             self.userDefaults.removeObject(forKey: key)
         }
-
-        self.userDefaults.synchronize()
     }
 
     open subscript(key: String) -> Any? {
@@ -109,9 +112,18 @@ open class Settings: NSObject, Reflectable {
                                             of object: Any?,
                                             change: [NSKeyValueChangeKey: Any]?,
                                             context: UnsafeMutableRawPointer?) {
-        if let path = keyPath {
+        guard let path = keyPath else { return }
+
+        if context == &Settings.currentContext {
             self[settingsKeyForPath(path)] = self.value(forKeyPath: path) as AnyObject?
+        } else if let keyPath = self.keyPath(from: path) {
+            self.setValue(self[settingsKeyForPath(path)], forKeyPath: keyPath)
         }
+    }
+
+    fileprivate func keyPath(from settingsKey: String) -> String? {
+        let keyPath = settingsKey.components(separatedBy: "_").last
+        return keyPath
     }
 
     fileprivate func settingsKeyForPath(_ path: String) -> String {
