@@ -50,7 +50,6 @@ open class Settings: NSObject, Reflectable {
             }
             let key = "\(UUID().uuidString)_"
             self.userDefaults.set(key, forKey: Settings.keysPrefixKey)
-            self.userDefaults.synchronize()
             return key
         }
         set {
@@ -65,7 +64,6 @@ open class Settings: NSObject, Reflectable {
             }
             let key = "\(UUID().uuidString)_"
             self.userDefaults.set(key, forKey: Settings.codableKeysPrefixKey)
-            self.userDefaults.synchronize()
             return key
         }
         set {
@@ -89,8 +87,6 @@ open class Settings: NSObject, Reflectable {
         } else {
             self.userDefaults.removeObject(forKey: key)
         }
-
-        self.userDefaults.synchronize()
     }
 
     open subscript(key: String) -> Any? {
