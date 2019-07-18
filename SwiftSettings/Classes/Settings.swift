@@ -82,6 +82,9 @@ open class Settings: NSObject, Reflectable {
     }
 
     open func setData(_ data: Data?, for key: String) {
+        if data == self.data(for: key) {
+            return
+        }
         if let d = data {
             self.userDefaults.set(d, forKey: key)
         } else {
@@ -117,7 +120,7 @@ open class Settings: NSObject, Reflectable {
         if context == &Settings.currentContext {
             self[settingsKeyForPath(path)] = self.value(forKeyPath: path) as AnyObject?
         } else if let keyPath = self.keyPath(from: path) {
-            self.setValue(self[settingsKeyForPath(path)], forKeyPath: keyPath)
+            self.setValue(self[path], forKeyPath: keyPath)
         }
     }
 
@@ -128,12 +131,14 @@ open class Settings: NSObject, Reflectable {
 
     fileprivate func settingsKeyForPath(_ path: String) -> String {
         let prefix = self.keyPrefix
-        return prefix == nil ? path : "\(prefix!)\(path)"
+        let className = String(describing: type(of: self))
+        return prefix == nil ? path : "\(prefix!)\(className)_\(path)"
     }
 
     fileprivate func settingsCodableKeyForPath(_ path: String) -> String {
         let prefix = self.codableKeyPrefix
-        return prefix == nil ? path : "\(prefix!)\(path)"
+        let className = String(describing: type(of: self))
+        return prefix == nil ? path : "\(prefix!)\(className)\(path)"
     }
 }
 
